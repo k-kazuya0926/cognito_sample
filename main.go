@@ -2,45 +2,81 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
-	"log"
-	"os"
 )
 
 func main() {
 	username := "user1@example.com"
 	password := "User1Pass"
-	clientId := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
-	userPoolId := os.Getenv("USER_POOL_ID") // 「アプリクライアント」画面で確認
+	clientID := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
+	userPoolID := os.Getenv("USER_POOL_ID") // 「アプリクライアント」画面で確認
+	email := "user2@example.com"
 
-	session, err := session.NewSession()
+	s, err := session.NewSession()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	svc := cognitoidentityprovider.New(session, &aws.Config{Region: aws.String("ap-northeast-1")})
+	cognitoIdentityProvider := cognitoidentityprovider.New(s, &aws.Config{Region: aws.String("ap-northeast-1")})
 
-	// TODO ユーザー作成
+	// ユーザー作成
+	adminCreateUserInput := &cognitoidentityprovider.AdminCreateUserInput{
+		//ClientMetadata: nil,
+		DesiredDeliveryMediums: []*string{
+			aws.String("EMAIL"),
+		},
+		//ForceAliasCreation: nil,
+		//MessageAction:      nil,
+		//TemporaryPassword:  nil,
+		UserAttributes: []*cognitoidentityprovider.AttributeType{
+			{
+				Name:  aws.String("email"),
+				Value: aws.String(email),
+			},
+		},
+		UserPoolId: &userPoolID,
+		Username:   &email,
+		//ValidationData: nil,
+	}
+	fmt.Printf("adminCreateUserInput: %+v\n", adminCreateUserInput)
+	//adminCreateUserOutput, err := cognitoIdentityProvider.AdminCreateUser(adminCreateUserInput)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//fmt.Printf("adminCreateUserOutput: %+v\n", adminCreateUserOutput)
 
 	// TODO メールアドレス認証
 
 	// ログイン
 	adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
+		//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
+		//	AnalyticsEndpointId: nil,
+		//},
 		AuthFlow: aws.String("ADMIN_NO_SRP_AUTH"),
 		AuthParameters: map[string]*string{
 			"USERNAME": aws.String(username),
 			"PASSWORD": aws.String(password),
 		},
-		ClientId:   aws.String(clientId),
-		UserPoolId: aws.String(userPoolId),
+		ClientId: aws.String(clientID),
+		//ClientMetadata: nil,
+		//ContextData: &cognitoidentityprovider.ContextDataType{
+		//	EncodedData: nil,
+		//	HttpHeaders: nil,
+		//	IpAddress:   nil,
+		//	ServerName:  nil,
+		//	ServerPath:  nil,
+		//},
+		UserPoolId: aws.String(userPoolID),
 	}
-
-	adminInitiateAuthOutput, err := svc.AdminInitiateAuth(adminInitiateAuthInput)
+	adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	fmt.Println(adminInitiateAuthOutput)
+	fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
 
 	// TODO パスワードリセット
 
@@ -54,7 +90,7 @@ func main() {
 	globalSignOutInput := &cognitoidentityprovider.GlobalSignOutInput{
 		AccessToken: aws.String(*adminInitiateAuthOutput.AuthenticationResult.AccessToken),
 	}
-	globalSignOutOutput, err := svc.GlobalSignOut(globalSignOutInput)
+	globalSignOutOutput, err := cognitoIdentityProvider.GlobalSignOut(globalSignOutInput)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
