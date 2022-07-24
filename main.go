@@ -11,9 +11,7 @@ import (
 )
 
 func main() {
-	email := "user1@example.com"
-	password := "User1Pass"
-	clientID := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
+	//clientID := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
 	userPoolID := os.Getenv("USER_POOL_ID") // 「アプリクライアント」画面で確認
 
 	sess, err := session.NewSession()
@@ -26,8 +24,12 @@ func main() {
 	}
 	cognitoIdentityProvider := cognitoidentityprovider.New(sess, &aws.Config{Region: aws.String("ap-northeast-1")})
 
+	//email := "user1@example.com"
+	//password := "User1Pass"
+	email2 := "user2@example.com"
+	//password2 := "User2Pass"
+
 	//// ユーザー作成
-	//email2 := "user2@example.com"
 	//adminCreateUserInput := &cognitoidentityprovider.AdminCreateUserInput{
 	//	//ClientMetadata: nil,
 	//	DesiredDeliveryMediums: []*string{
@@ -35,7 +37,7 @@ func main() {
 	//	},
 	//	//ForceAliasCreation: nil,
 	//	//MessageAction:      nil,
-	//	//TemporaryPassword:  nil,
+	//	TemporaryPassword: &password2,
 	//	UserAttributes: []*cognitoidentityprovider.AttributeType{
 	//		{
 	//			Name:  aws.String("email"),
@@ -57,32 +59,32 @@ func main() {
 
 	// TODO パスワードリセット
 
-	// ログイン
-	adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
-		//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
-		//	AnalyticsEndpointId: nil,
-		//},
-		AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeAdminNoSrpAuth),
-		AuthParameters: map[string]*string{
-			"USERNAME": aws.String(email),
-			"PASSWORD": aws.String(password),
-		},
-		ClientId: aws.String(clientID),
-		//ClientMetadata: nil,
-		//ContextData: &cognitoidentityprovider.ContextDataType{
-		//	EncodedData: nil,
-		//	HttpHeaders: nil,
-		//	IpAddress:   nil,
-		//	ServerName:  nil,
-		//	ServerPath:  nil,
-		//},
-		UserPoolId: aws.String(userPoolID),
-	}
-	adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
+	//// ログイン
+	//adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
+	//	//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
+	//	//	AnalyticsEndpointId: nil,
+	//	//},
+	//	AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeAdminNoSrpAuth),
+	//	AuthParameters: map[string]*string{
+	//		"USERNAME": aws.String(email),
+	//		"PASSWORD": aws.String(password),
+	//	},
+	//	ClientId: aws.String(clientID),
+	//	//ClientMetadata: nil,
+	//	//ContextData: &cognitoidentityprovider.ContextDataType{
+	//	//	EncodedData: nil,
+	//	//	HttpHeaders: nil,
+	//	//	IpAddress:   nil,
+	//	//	ServerName:  nil,
+	//	//	ServerPath:  nil,
+	//	//},
+	//	UserPoolId: aws.String(userPoolID),
+	//}
+	//adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
 
 	// TODO 初期パスワードの変更
 	//adminRespondToAuthChallengeInput := &cognitoidentityprovider.AdminRespondToAuthChallengeInput{
@@ -117,15 +119,25 @@ func main() {
 
 	// TODO 表示名変更
 
-	// ログアウト
-	globalSignOutInput := &cognitoidentityprovider.GlobalSignOutInput{
-		AccessToken: aws.String(*adminInitiateAuthOutput.AuthenticationResult.AccessToken),
+	//// ログアウト
+	//globalSignOutInput := &cognitoidentityprovider.GlobalSignOutInput{
+	//	AccessToken: aws.String(*adminInitiateAuthOutput.AuthenticationResult.AccessToken),
+	//}
+	//globalSignOutOutput, err := cognitoIdentityProvider.GlobalSignOut(globalSignOutInput)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//fmt.Printf("globalSignOutOutput: %+v\n", globalSignOutOutput)
+
+	// ユーザー削除
+	adminDeleteUserInput := &cognitoidentityprovider.AdminDeleteUserInput{
+		UserPoolId: aws.String(userPoolID),
+		Username:   aws.String(email2),
 	}
-	globalSignOutOutput, err := cognitoIdentityProvider.GlobalSignOut(globalSignOutInput)
+
+	adminDeleteUserOutput, err := cognitoIdentityProvider.AdminDeleteUser(adminDeleteUserInput)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	fmt.Printf("globalSignOutOutput: %+v\n", globalSignOutOutput)
-
-	// TODO ユーザー削除
+	fmt.Printf("adminDeleteUserOutput: %+v\n", adminDeleteUserOutput)
 }
