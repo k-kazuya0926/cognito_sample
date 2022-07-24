@@ -24,9 +24,9 @@ func main() {
 	}
 	cognitoIdentityProvider := cognitoidentityprovider.New(sess, &aws.Config{Region: aws.String("ap-northeast-1")})
 
-	//email := "user1@example.com"
+	email := "user1@example.com"
 	//password := "User1Pass"
-	email2 := "user2@example.com"
+	//email2 := "user2@example.com"
 	//password2 := "User2Pass"
 
 	//// ユーザー作成
@@ -57,35 +57,6 @@ func main() {
 
 	// TODO メールアドレス認証
 
-	// TODO パスワードリセット
-
-	//// ログイン
-	//adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
-	//	//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
-	//	//	AnalyticsEndpointId: nil,
-	//	//},
-	//	AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeAdminNoSrpAuth),
-	//	AuthParameters: map[string]*string{
-	//		"USERNAME": aws.String(email),
-	//		"PASSWORD": aws.String(password),
-	//	},
-	//	ClientId: aws.String(clientID),
-	//	//ClientMetadata: nil,
-	//	//ContextData: &cognitoidentityprovider.ContextDataType{
-	//	//	EncodedData: nil,
-	//	//	HttpHeaders: nil,
-	//	//	IpAddress:   nil,
-	//	//	ServerName:  nil,
-	//	//	ServerPath:  nil,
-	//	//},
-	//	UserPoolId: aws.String(userPoolID),
-	//}
-	//adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
-	//if err != nil {
-	//	log.Fatalln(err.Error())
-	//}
-	//fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
-
 	// TODO 初期パスワードの変更
 	//adminRespondToAuthChallengeInput := &cognitoidentityprovider.AdminRespondToAuthChallengeInput{
 	//	//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
@@ -115,6 +86,45 @@ func main() {
 	//}
 	//fmt.Printf("adminRespondToAuthChallengeOutput: %+v\n", adminRespondToAuthChallengeOutput)
 
+	// TODO パスワードリセット
+
+	//// ログイン
+	//adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
+	//	//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
+	//	//	AnalyticsEndpointId: nil,
+	//	//},
+	//	AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeAdminNoSrpAuth),
+	//	AuthParameters: map[string]*string{
+	//		"USERNAME": aws.String(email),
+	//		"PASSWORD": aws.String(password),
+	//	},
+	//	ClientId: aws.String(clientID),
+	//	//ClientMetadata: nil,
+	//	//ContextData: &cognitoidentityprovider.ContextDataType{
+	//	//	EncodedData: nil,
+	//	//	HttpHeaders: nil,
+	//	//	IpAddress:   nil,
+	//	//	ServerName:  nil,
+	//	//	ServerPath:  nil,
+	//	//},
+	//	UserPoolId: aws.String(userPoolID),
+	//}
+	//adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
+
+	// ユーザー詳細取得
+	adminGetUserOutput, err := cognitoIdentityProvider.AdminGetUser(&cognitoidentityprovider.AdminGetUserInput{
+		UserPoolId: aws.String(userPoolID),
+		Username:   aws.String(email),
+	})
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	fmt.Printf("adminGetUserOutput: %+v\n", adminGetUserOutput)
+
 	// TODO メールアドレス変更
 
 	// TODO 表示名変更
@@ -129,15 +139,15 @@ func main() {
 	//}
 	//fmt.Printf("globalSignOutOutput: %+v\n", globalSignOutOutput)
 
-	// ユーザー削除
-	adminDeleteUserInput := &cognitoidentityprovider.AdminDeleteUserInput{
-		UserPoolId: aws.String(userPoolID),
-		Username:   aws.String(email2),
-	}
-
-	adminDeleteUserOutput, err := cognitoIdentityProvider.AdminDeleteUser(adminDeleteUserInput)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	fmt.Printf("adminDeleteUserOutput: %+v\n", adminDeleteUserOutput)
+	//// ユーザー削除
+	//adminDeleteUserInput := &cognitoidentityprovider.AdminDeleteUserInput{
+	//	UserPoolId: aws.String(userPoolID),
+	//	Username:   aws.String(email2),
+	//}
+	//
+	//adminDeleteUserOutput, err := cognitoIdentityProvider.AdminDeleteUser(adminDeleteUserInput)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//fmt.Printf("adminDeleteUserOutput: %+v\n", adminDeleteUserOutput)
 }
