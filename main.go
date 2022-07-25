@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	//clientID := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
+	clientID := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
 	userPoolID := os.Getenv("USER_POOL_ID") // 「アプリクライアント」画面で確認
 
 	sess, err := session.NewSession()
@@ -24,14 +24,14 @@ func main() {
 	}
 	cognitoIdentityProvider := cognitoidentityprovider.New(sess, &aws.Config{Region: aws.String("ap-northeast-1")})
 
-	email := "user1@example.com"
+	//email := "user1@example.com"
 	//password := "User1Pass"
-	//email2 := "user2@example.com"
-	//password2 := "User2Pass"
+	email2 := "user2@example.com"
+	password2 := "User2Pass"
 
 	//// ユーザー作成
 	//adminCreateUserInput := &cognitoidentityprovider.AdminCreateUserInput{
-	//	//ClientMetadata: nil,
+	//	//ClientMetadata: nil, // トリガーに渡すパラメータ
 	//	DesiredDeliveryMediums: []*string{
 	//		aws.String("EMAIL"),
 	//	},
@@ -57,73 +57,78 @@ func main() {
 
 	// TODO メールアドレス認証
 
-	// TODO 初期パスワードの変更
-	//adminRespondToAuthChallengeInput := &cognitoidentityprovider.AdminRespondToAuthChallengeInput{
-	//	//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
-	//	//	AnalyticsEndpointId: nil,
-	//	//},
-	//	ChallengeName: aws.String("NEW_PASSWORD_REQUIRED"),
-	//	ChallengeResponses: map[string]*string{
-	//		"NEW_PASSWORD": aws.String(password),
-	//		"USERNAME":     aws.String(email),
-	//	},
-	//	ClientId: aws.String(clientID),
-	//	//ClientMetadata: nil,
-	//	//ContextData: &cognitoidentityprovider.ContextDataType{
-	//	//	EncodedData: nil,
-	//	//	HttpHeaders: nil,
-	//	//	IpAddress:   nil,
-	//	//	ServerName:  nil,
-	//	//	ServerPath:  nil,
-	//	//},
-	//	Session:    adminInitiateAuthOutput.Session,
-	//	UserPoolId: aws.String(userPoolID),
-	//}
-	//
-	//adminRespondToAuthChallengeOutput, err := cognitoIdentityProvider.AdminRespondToAuthChallenge(adminRespondToAuthChallengeInput)
-	//if err != nil {
-	//	log.Fatalln(err.Error())
-	//}
-	//fmt.Printf("adminRespondToAuthChallengeOutput: %+v\n", adminRespondToAuthChallengeOutput)
-
 	// TODO パスワードリセット
 
-	//// ログイン
-	//adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
-	//	//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
-	//	//	AnalyticsEndpointId: nil,
-	//	//},
-	//	AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeAdminNoSrpAuth),
-	//	AuthParameters: map[string]*string{
-	//		"USERNAME": aws.String(email),
-	//		"PASSWORD": aws.String(password),
-	//	},
-	//	ClientId: aws.String(clientID),
-	//	//ClientMetadata: nil,
-	//	//ContextData: &cognitoidentityprovider.ContextDataType{
-	//	//	EncodedData: nil,
-	//	//	HttpHeaders: nil,
-	//	//	IpAddress:   nil,
-	//	//	ServerName:  nil,
-	//	//	ServerPath:  nil,
-	//	//},
-	//	UserPoolId: aws.String(userPoolID),
-	//}
-	//adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
-	//if err != nil {
-	//	log.Fatalln(err.Error())
-	//}
-	//fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
-
-	// ユーザー詳細取得
-	adminGetUserOutput, err := cognitoIdentityProvider.AdminGetUser(&cognitoidentityprovider.AdminGetUserInput{
+	// ログイン
+	adminInitiateAuthInput := &cognitoidentityprovider.AdminInitiateAuthInput{
+		//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
+		//	AnalyticsEndpointId: nil,
+		//},
+		AuthFlow: aws.String(cognitoidentityprovider.AuthFlowTypeAdminNoSrpAuth),
+		AuthParameters: map[string]*string{
+			//"USERNAME": aws.String(email),
+			"USERNAME": aws.String(email2),
+			//"PASSWORD": aws.String(password),
+			"PASSWORD": aws.String(password2),
+		},
+		ClientId: aws.String(clientID),
+		//ClientMetadata: nil,
+		//ContextData: &cognitoidentityprovider.ContextDataType{
+		//	EncodedData: nil,
+		//	HttpHeaders: nil,
+		//	IpAddress:   nil,
+		//	ServerName:  nil,
+		//	ServerPath:  nil,
+		//},
 		UserPoolId: aws.String(userPoolID),
-		Username:   aws.String(email),
-	})
+	}
+	adminInitiateAuthOutput, err := cognitoIdentityProvider.AdminInitiateAuth(adminInitiateAuthInput)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	fmt.Printf("adminGetUserOutput: %+v\n", adminGetUserOutput)
+	fmt.Printf("adminInitiateAuthOutput: %+v\n", adminInitiateAuthOutput)
+
+	// 初期パスワード変更
+	adminRespondToAuthChallengeInput := &cognitoidentityprovider.AdminRespondToAuthChallengeInput{
+		AnalyticsMetadata: nil,
+		//AnalyticsMetadata: &cognitoidentityprovider.AnalyticsMetadataType{
+		//	AnalyticsEndpointId: nil,
+		//},
+		ChallengeName: aws.String("NEW_PASSWORD_REQUIRED"),
+		ChallengeResponses: map[string]*string{
+			"NEW_PASSWORD": aws.String(password2),
+			"USERNAME":     aws.String(email2),
+			//"userAttributes.xxx": aws.String("xxx"),
+		},
+		ClientId: aws.String(clientID),
+		//ClientMetadata: nil,
+		//ContextData:    nil,
+		//ClientMetadata: nil,
+		//ContextData: &cognitoidentityprovider.ContextDataType{
+		//	EncodedData: nil,
+		//	HttpHeaders: nil,
+		//	IpAddress:   nil,
+		//	ServerName:  nil,
+		//	ServerPath:  nil,
+		//},
+		Session:    adminInitiateAuthOutput.Session,
+		UserPoolId: aws.String(userPoolID),
+	}
+	adminRespondToAuthChallengeOutput, err := cognitoIdentityProvider.AdminRespondToAuthChallenge(adminRespondToAuthChallengeInput)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	fmt.Printf("adminRespondToAuthChallengeOutput: %+v\n", adminRespondToAuthChallengeOutput)
+
+	//// ユーザー詳細取得
+	//adminGetUserOutput, err := cognitoIdentityProvider.AdminGetUser(&cognitoidentityprovider.AdminGetUserInput{
+	//	UserPoolId: aws.String(userPoolID),
+	//	Username:   aws.String(email),
+	//})
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//fmt.Printf("adminGetUserOutput: %+v\n", adminGetUserOutput)
 
 	// TODO メールアドレス変更
 
