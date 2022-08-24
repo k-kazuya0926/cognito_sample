@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 )
 
-// 1
+// 2
 func main() {
 	clientID := os.Getenv("CLIENT_ID")      // 「全般設定」画面で確認
 	userPoolID := os.Getenv("USER_POOL_ID") // 「アプリクライアント」画面で確認
